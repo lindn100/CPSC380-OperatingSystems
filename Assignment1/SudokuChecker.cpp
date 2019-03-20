@@ -65,7 +65,7 @@ void SudokuChecker::runProgram() {
     cout << "Valid sudoku board. Exiting." << endl;
   } else {
     for(int i = 0; i < v.size(); i += 3) {
-      cout << "Duplicate value of " << v[i] << " found at " << h[i+1] << "," << v[i+1] << " in square " << s[i+1] << ". This value should be " << v[i+2];
+      cout << "Duplicate value of " << v[i] << " found at " << h[i+1] << "," << v[i+1] << " in square " << s[i+1] << ". This value should be " << v[i+2] << endl;
     }
   }
 }
@@ -149,12 +149,12 @@ vector<int> SudokuChecker::sScan(vector<vector<int>> board) {
   for(int a = 0; a < 3; ++a) {
     for(int b = 0; b < 3; ++b) {
       vector<int> seen(9);
-      for(int i = a*3; i < (a*3)+3; ++i){
-        for(int j = b*3; j < (b*3)+3; ++j) {
+      for(int i = b*3; i < (b*3)+3; ++i){
+        for(int j = a*3; j < (a*3)+3; ++j) {
           if(seen[board[i][j]-1] != 0) {
-            cout << "Duplicate number " << board[i][j] << " in square " << a+b+1 << endl;
+            //cout << "Duplicate number " << board[i][j] << " in square " << a+(b*3)+1 << endl;
             dups.push_back(board[i][j]);
-            square.push_back(a+b+1);
+            square.push_back(a+(b*3)+1);
           } else {
             seen[board[i][j]-1] = board[i][j];
           }
