@@ -4,7 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-//#include <pthread.h>
+#include <pthread.h>
 
 using namespace std;
 
@@ -47,7 +47,12 @@ void SudokuChecker::loadFile(string s) {
   }
 }
 
-void SudokuChecker::printBoard(vector<vector<int>> board) {
+static void* startPrintBoard(void* object) {
+  reinterpret_cast<SudokuChecker*>(object)->printBoard();
+  return 0;
+}
+
+void SudokuChecker::printBoard() {
   for(int i = 0; i < board.size(); ++i) {
     for(int j = 0; j < board[0].size(); ++j) {
       cout << board[i][j];
@@ -57,9 +62,23 @@ void SudokuChecker::printBoard(vector<vector<int>> board) {
 }
 
 void SudokuChecker::runProgram() {
-  vector<int> v = vScan(board);
-  vector<int> h = hScan(board);
-  vector<int> s = sScan(board);
+  pthread_t thread1;
+  /*pthread_t thread2;
+  pthread_t thread3;*/
+
+  pthread_create(&thread1, NULL, &startVScan, this);
+  /*pthread_create(&thread2, NULL, &startHScan, this);
+  pthread_create(&thread3, NULL, &startSScan, this);*/
+
+  pthread_join(thread1, NULL);
+  /*pthread_join(thread2, NULL);
+  pthread_join(thread3, NULL);*/
+
+  /*pthread_create(&thread1, NULL, &startPrintBoard, this);
+  pthread_join(thread1, NULL);
+  vScan();
+  hScan();
+  sScan();*/
 
   if(v.size() == 0 && h.size() == 0 && s.size() == 0) {
     cout << "Valid sudoku board. Exiting." << endl;
@@ -70,8 +89,22 @@ void SudokuChecker::runProgram() {
   }
 }
 
-vector<int> SudokuChecker::vScan(vector<vector<int>> board) {
-  vector<int> invalids;
+static void* startVScan(void* object) {
+  reinterpret_cast<SudokuChecker*>(object)->vScan();
+  return 0;
+}
+
+static void* startHScan(void* object) {
+  reinterpret_cast<SudokuChecker*>(object)->hScan();
+  return 0;
+}
+
+static void* startSScan(void* object) {
+  reinterpret_cast<SudokuChecker*>(object)->sScan();
+  return 0;
+}
+
+void SudokuChecker::vScan() {
   vector<int> dups;
   vector<int> col;
   vector<int> missing;
@@ -96,16 +129,13 @@ vector<int> SudokuChecker::vScan(vector<vector<int>> board) {
     }
   }
    for(int i = 0; i < dups.size(); ++i) {
-     invalids.push_back(dups[i]); //order of the returning array will be duplicated num followed by missing num
-     invalids.push_back(col[i]);
-     invalids.push_back(missing[i]);
+     v.push_back(dups[i]); //order of the returning array will be duplicated num followed by missing num
+     v.push_back(col[i]);
+     v.push_back(missing[i]);
    }
-
-   return invalids;
 }
 
-vector<int> SudokuChecker::hScan(vector<vector<int>> board) {
-  vector<int> invalids;
+void SudokuChecker::hScan() {
   vector<int> dups;
   vector<int> row;
   vector<int> missing;
@@ -131,17 +161,14 @@ vector<int> SudokuChecker::hScan(vector<vector<int>> board) {
   }
 
   for(int i = 0; i < dups.size(); ++i) {
-    invalids.push_back(dups[i]);
-    invalids.push_back(row[i]);
-    invalids.push_back(missing[i]);
+    h.push_back(dups[i]);
+    h.push_back(row[i]);
+    h.push_back(missing[i]);
   }
-
-  return invalids;
 }
 
-vector<int> SudokuChecker::sScan(vector<vector<int>> board) {
+void SudokuChecker::sScan() {
 
-  vector<int> invalids;
   vector<int> dups;
   vector<int> square;
   vector<int> missing;
@@ -170,10 +197,8 @@ vector<int> SudokuChecker::sScan(vector<vector<int>> board) {
   }
 
   for(int i = 0; i < dups.size(); ++i) {
-    invalids.push_back(dups[i]);
-    invalids.push_back(square[i]);
-    invalids.push_back(missing[i]);
+    s.push_back(dups[i]);
+    s.push_back(square[i]);
+    s.push_back(missing[i]);
   }
-
-  return invalids;
 }
