@@ -1,8 +1,3 @@
-/*	QUESTIONS
-2. Priorities of threads
-3. C++ implementation of binary semaphore instead of syntax
-
-*/
 #include <iostream>
 #include <pthread.h>
 #include <sched.h>
@@ -60,14 +55,14 @@ void *slow(void *);
 int main() {
 	struct sched_param params;
 
-/*	
+	
 
 	cpu_set_t mask;
-	int status;
+	int cpuAffinity = 1;
 
 	CPU_ZERO(&mask);
 	CPU_SET(cpuAffinity, &mask);
-*/
+
 	sem_init(&s1, 0, 0);
 	sem_init(&s2, 0, 0);
 	sem_init(&s3, 0, 0);
@@ -96,27 +91,31 @@ int main() {
 		switch(i) {
 			case 0:
 				pthread_create(&myThreads[0], NULL, superfast, NULL);
-				//pthread_setaffinity_np(threads[0], sizeof(cpu_set_t), &cpuset);
+				pthread_setaffinity_np(myThreads[0], sizeof(mask), &mask);
 				params.sched_priority--;
 				pthread_setschedparam(myThreads[0], SCHED_FIFO, &params);
 				break;
 			case 1:
 				pthread_create(&myThreads[1], NULL, fast, NULL);
+				pthread_setaffinity_np(myThreads[1], sizeof(mask), &mask);
 				params.sched_priority--;
 				pthread_setschedparam(myThreads[1], SCHED_FIFO, &params);
 				break;
 			case 2:
 				pthread_create(&myThreads[2], NULL, medium, NULL);
+				pthread_setaffinity_np(myThreads[2], sizeof(mask), &mask);
 				params.sched_priority--;
 				pthread_setschedparam(myThreads[2], SCHED_FIFO, &params);
 				break;
 			case 3:
 				pthread_create(&myThreads[3], NULL, slow, NULL);
+				pthread_setaffinity_np(myThreads[3], sizeof(mask), &mask);
 				params.sched_priority--;
 				pthread_setschedparam(myThreads[3], SCHED_FIFO, &params);
 				break;
 			case 4:
 				pthread_create(&myThreads[4], NULL, scheduler, NULL);
+				pthread_setaffinity_np(myThreads[4], sizeof(mask), &mask);
 				params.sched_priority = sched_get_priority_max(SCHED_FIFO);
 				pthread_setschedparam(myThreads[4], SCHED_FIFO, &params);
 				break;
